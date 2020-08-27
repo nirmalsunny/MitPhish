@@ -17,6 +17,8 @@ from sklearn.linear_model import LogisticRegression
 import math
 from collections import Counter
 
+from pathlib import Path
+
 app = Flask(__name__)
 
 
@@ -64,9 +66,24 @@ def TL():
 
 @app.route('/')
 def homepage():
-	allurls = 'data/data.csv'  # path to our all urls file
-	df = pd.read_csv(allurls, ',', error_bad_lines=False)
-	return df.head(5)
+	filename = Path("data/test.txt")
+	
+	print(filename.name)
+	# prints "raw_data.txt"
+	
+	print(filename.suffix)
+	# prints "txt"
+	
+	print(filename.stem)
+	# prints "raw_data"
+	path = os.getcwd()
+
+	print(path)
+	
+	if not filename.exists():
+		return "Oops, file doesn't exist! "
+	else:
+		return "Yay, the file exists! " + path
 
 @app.route('/<path:path>')
 def show_index(path):
