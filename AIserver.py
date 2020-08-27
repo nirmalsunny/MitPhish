@@ -21,8 +21,6 @@ from pathlib import Path
 
 app = Flask(__name__)
 
-vectorizer = 0
-
 
 def entropy(s):
     p, lns = Counter(s), float(len(s))
@@ -46,17 +44,18 @@ def getTokens(input):
     return allTokens
 
 
+vectorizer = TfidfVectorizer(tokenizer=getTokens)  # get a vector for each url but use our customized tokenizer
+
 def TL():
     allurls = Path("data/data.csv")  # path to our all urls file
     allurlscsv = pd.read_csv(allurls, ',', error_bad_lines=False)  # reading file
     allurlsdata = pd.DataFrame(allurlscsv)  # converting to a dataframe
-
     allurlsdata = np.array(allurlsdata)  # converting it into an array
     random.shuffle(allurlsdata)  # shuffling
     # print(allurlsdata)
     y = [d[1] for d in allurlsdata]  # all labels
     corpus = [d[0] for d in allurlsdata]  # all urls corresponding to a label (either good or bad)
-    vectorizer = TfidfVectorizer(tokenizer=getTokens)  # get a vector for each url but use our customized tokenizer
+
     x = vectorizer.fit_transform(corpus)  # get the X vector
 
     x_train, x_test, y_train, y_test = train_test_split(x, y,
