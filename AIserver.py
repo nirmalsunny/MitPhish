@@ -43,7 +43,7 @@ def getTokens(input):
 
 
 def TL():
-    allurls = '/data/data.csv'  # path to our all urls file
+    allurls = 'data/data.csv'  # path to our all urls file
     allurlscsv = pd.read_csv(allurls, ',', error_bad_lines=False)  # reading file
     allurlsdata = pd.DataFrame(allurlscsv)  # converting to a dataframe
 
@@ -83,7 +83,7 @@ Entropy: %s
 port = os.getenv('VCAP_APP_PORT', 5000)
 if __name__ == "__main__":
     vectorizer, lgs = TL()
-    app.run()
+    app.run(debug=True, threaded=True)
 
 # vectorizer, lgs  = TL()
 # checking some random URLs. The results come out to be expected. The first two are okay and the last four are malicious/phishing/bad
