@@ -64,7 +64,9 @@ def TL():
 
 @app.route('/')
 def homepage():
-	return 'MitPhish'
+	allurls = 'data/data.csv'  # path to our all urls file
+	df = pd.read_csv(allurls, ',', error_bad_lines=False)
+	return df.head(5)
 
 @app.route('/<path:path>')
 def show_index(path):
