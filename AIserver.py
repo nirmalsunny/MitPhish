@@ -21,6 +21,8 @@ from pathlib import Path
 
 app = Flask(__name__)
 
+vectorizer = 0
+
 
 def entropy(s):
     p, lns = Counter(s), float(len(s))
@@ -51,39 +53,30 @@ def TL():
 
     allurlsdata = np.array(allurlsdata)  # converting it into an array
     random.shuffle(allurlsdata)  # shuffling
-    #print(allurlsdata)
+    # print(allurlsdata)
     y = [d[1] for d in allurlsdata]  # all labels
     corpus = [d[0] for d in allurlsdata]  # all urls corresponding to a label (either good or bad)
     vectorizer = TfidfVectorizer(tokenizer=getTokens)  # get a vector for each url but use our customized tokenizer
     x = vectorizer.fit_transform(corpus)  # get the X vector
 
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)  # split into training and testing set 80/20 ratio
+    x_train, x_test, y_train, y_test = train_test_split(x, y,
+                                                        test_size=0.2)  # split into training and testing set 80/20 ratio
 
     lgs = LogisticRegression(solver='liblinear', random_state=42, max_iter=120)  # using logistic regression
-    lgs.fit(X_train, y_train)
-    print(lgs.score(X_test, y_test))  # pring the score. It comes out to be 98%
+    lgs.fit(x_train, y_train)
+    print(lgs.score(x_test, y_test))  # pring the score. It comes out to be 98%
     return vectorizer, lgs
+
 
 @app.route('/')
 def homepage():
-	filename = Path("data/test.txt")
-	
-	print(filename.name)
-	# prints "raw_data.txt"
-	
-	print(filename.suffix)
-	# prints "txt"
-	
-	print(filename.stem)
-	# prints "raw_data"
-	path = os.getcwd()
+    filename = Path("data/test.txt")
+    path = os.getcwd()
+    if not filename.exists():
+        return "Oops, file doesn't exist! "
+    else:
+        return "Yay, the file exists! " + path
 
-	print(filename)
-	
-	if not filename.exists():
-		return "Oops, file doesn't exist! "
-	else:
-		return "Yay, the file exists! " + path
 
 @app.route('/<path:path>')
 def show_index(path):
