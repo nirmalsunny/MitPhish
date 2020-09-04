@@ -15,9 +15,11 @@ import os
 from sklearn.linear_model import LogisticRegression
 
 import math
+import json
 from collections import Counter
 
 from pathlib import Path
+import re
 
 mitphish = Flask(__name__)
 
@@ -28,26 +30,25 @@ def entropy(s):
 
 
 def getTokens(input):
-    tokensBySlash = str(input.encode('utf-8')).split('/')  # get tokens after splitting by slash
-    allTokens = []
-    for i in tokensBySlash:
-        tokens = str(i).split('-')  # get tokens after splitting by dash
-        tokensByDot = []
-        for j in range(0, len(tokens)):
-            tempTokens = str(tokens[j]).split('.')  # get tokens after splitting by dot
-            tokensByDot = tokensByDot + tempTokens
-        allTokens = allTokens + tokens + tokensByDot
-    allTokens = list(set(allTokens))  # remove redundant tokens
-   # if 'com' in allTokens:
-    #    allTokens.remove(
-     #       'com')  # removing .com since it occurs a lot of times and it should not be included in our features
-    return allTokens
+	tokensBySlash = str(input.encode('utf-8')).split('/')  # get tokens after splitting by slash
+	allTokens = []
+	for i in tokensBySlash:
+	    tokens = str(i).split('-')  # get tokens after splitting by dash
+	    tokensByDot = []
+	    for j in range(0, len(tokens)):
+	        tempTokens = str(tokens[j]).split('.')  # get tokens after splitting by dot
+	        tokensByDot = tokensByDot + tempTokens
+	    allTokens = allTokens + tokens + tokensByDot
+	allTokens = list(set(allTokens))  # remove redundant tokens
+	if 'com' in allTokens:
+		allTokens.remove('com') # removing .com since it occurs a lot of times and it should not be included in our features
+	return allTokens
 
 
   # get a vector for each url but use our customized tokenizer
 
 def TL():
-	allurls = Path("data/verified_online.csv")  # path to our all urls file
+	allurls = Path("data/data.csv")  # path to our all urls file
 	allurlscsv = pd.read_csv(allurls, ',', error_bad_lines=False)  # reading file
 	allurlsdata = pd.DataFrame(allurlscsv)  # converting to a dataframe
 	allurlsdata = np.array(allurlsdata)  # converting it into an array
@@ -79,17 +80,18 @@ def homepage():
 
 @mitphish.route('/test/<path:path>')
 def show_index(path):
+	path = re.sub('^(http|https)://www.', '', path)
 	X_predict = []
 	X_predict.append(str(path))
 	vectoriser, lggs = TL()
 	X_predict = vectoriser.transform(X_predict)
 	y_Predict = lggs.predict(X_predict)
-	return '''
-You asked for %s
-
-AI output: %s 
-Entropy: %s 
-''' % (path, str(y_Predict), str(entropy(path)))
+	if str(y_Predict) == "['good']":
+		decision = "good"
+	else:
+		decision = "bad"
+	data = {'url' : path, 'decision': decision, 'entropy' : str(entropy(path))}
+	return json.dumps(data, indent=4)
 
 
 port = os.getenv('VCAP_APP_PORT', 5000)
