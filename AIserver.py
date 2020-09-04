@@ -19,7 +19,7 @@ from collections import Counter
 
 from pathlib import Path
 
-app = Flask(__name__)
+mitphish = Flask(__name__)
 
 
 def entropy(s):
@@ -38,52 +38,53 @@ def getTokens(input):
             tokensByDot = tokensByDot + tempTokens
         allTokens = allTokens + tokens + tokensByDot
     allTokens = list(set(allTokens))  # remove redundant tokens
-    if 'com' in allTokens:
-        allTokens.remove(
-            'com')  # removing .com since it occurs a lot of times and it should not be included in our features
+   # if 'com' in allTokens:
+    #    allTokens.remove(
+     #       'com')  # removing .com since it occurs a lot of times and it should not be included in our features
     return allTokens
 
 
-vectorizer = TfidfVectorizer(tokenizer=getTokens)  # get a vector for each url but use our customized tokenizer
+  # get a vector for each url but use our customized tokenizer
 
 def TL():
-    allurls = Path("data/data.csv")  # path to our all urls file
-    allurlscsv = pd.read_csv(allurls, ',', error_bad_lines=False)  # reading file
-    allurlsdata = pd.DataFrame(allurlscsv)  # converting to a dataframe
-    allurlsdata = np.array(allurlsdata)  # converting it into an array
-    random.shuffle(allurlsdata)  # shuffling
-    # print(allurlsdata)
-    y = [d[1] for d in allurlsdata]  # all labels
-    corpus = [d[0] for d in allurlsdata]  # all urls corresponding to a label (either good or bad)
+	allurls = Path("data/verified_online.csv")  # path to our all urls file
+	allurlscsv = pd.read_csv(allurls, ',', error_bad_lines=False)  # reading file
+	allurlsdata = pd.DataFrame(allurlscsv)  # converting to a dataframe
+	allurlsdata = np.array(allurlsdata)  # converting it into an array
+	random.shuffle(allurlsdata)  # shuffling
+	# print(allurlsdata)
+	y = [d[1] for d in allurlsdata]  # all labels
+	corpus = [d[0] for d in allurlsdata]  # all urls corresponding to a label (either good or bad)
+	vectorizer = TfidfVectorizer(tokenizer=getTokens)
+	x = vectorizer.fit_transform(corpus)  # get the X vector
+	
+	x_train, x_test, y_train, y_test = train_test_split(x, y,
+	                                                    test_size=0.2)  # split into training and testing set 80/20 ratio
+	
+	lgs = LogisticRegression(solver='liblinear', random_state=42, max_iter=120)  # using logistic regression
+	lgs.fit(x_train, y_train)
+	print(lgs.score(x_test, y_test))  # pring the score. It comes out to be 98%
+	return vectorizer, lgs
 
-    x = vectorizer.fit_transform(corpus)  # get the X vector
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y,
-                                                        test_size=0.2)  # split into training and testing set 80/20 ratio
-
-    lgs = LogisticRegression(solver='liblinear', random_state=42, max_iter=120)  # using logistic regression
-    lgs.fit(x_train, y_train)
-    print(lgs.score(x_test, y_test))  # pring the score. It comes out to be 98%
-    return vectorizer, lgs
-
-
-@app.route('/')
+@mitphish.route('/')
 def homepage():
     filename = Path("data/test.txt")
     path = os.getcwd()
     if not filename.exists():
         return "Oops, file doesn't exist! "
     else:
-        return "Yay, the file exists! " + path
+        return "MitPhish" #+ path Yay, the file exists! 
 
 
-@app.route('/<path:path>')
+@mitphish.route('/test/<path:path>')
 def show_index(path):
-    X_predict = []
-    X_predict.append(str(path))
-    X_predict = vectorizer.transform(X_predict)
-    y_Predict = lgs.predict(X_predict)
-    return '''
+	X_predict = []
+	X_predict.append(str(path))
+	vectoriser, lggs = TL()
+	X_predict = vectoriser.transform(X_predict)
+	y_Predict = lggs.predict(X_predict)
+	return '''
 You asked for %s
 
 AI output: %s 
@@ -93,13 +94,12 @@ Entropy: %s
 
 port = os.getenv('VCAP_APP_PORT', 5000)
 if __name__ == "__main__":
-    vectorizer, lgs = TL()
-    app.run(debug=True, threaded=True)
+	mitphish.run(debug=True, threaded=True)
 
 # vectorizer, lgs  = TL()
 # checking some random URLs. The results come out to be expected. The first two are okay and the last four are malicious/phishing/bad
 
-# X_predict = ['wikipedia.com','google.com/search=faizanahad','pakistanifacebookforever.com/getpassword.php/','www.radsport-voggel.de/wp-admin/includes/log.exe','ahrenhei.without-transfer.ru/nethost.exe','www.itidea.it/centroesteticosothys/img/_notes/gum.exe']
+# X_predict = ['wikipedia.com','google.com/search=something','pakistanifacebookforever.com/getpassword.php/','www.radsport-voggel.de/wp-admin/includes/log.exe','ahrenhei.without-transfer.ru/nethost.exe','www.itidea.it/centroesteticosothys/img/_notes/gum.exe']
 
 # X_predict = vectorizer.transform(X_predict)
 
