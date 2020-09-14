@@ -13,7 +13,7 @@ function transfer(){
 		$("#div1").text(server.decision);
     }
   };
-  xhttp.open("GET", "http://localhost:5000/test/" + tablink, true);
+  xhttp.open("GET", "http://nsunny.pythonanywhere.com/test/" + tablink, true);
   xhttp.send();
 		// Uncomment this line if you see some error on the extension to see the full error message for debugging.
 		
