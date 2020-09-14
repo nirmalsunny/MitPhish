@@ -8,7 +8,7 @@ function transfer(){
 		var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      $("#p1").text("The URL being tested is - "+tablink);
+      //$("#p1").text("The URL being tested is - "+tablink);
 		var server = JSON.parse(this.responseText)
 		$("#div1").text(server.decision);
     }
