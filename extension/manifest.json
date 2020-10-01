@@ -1,29 +1,48 @@
 {
-  "manifest_version": 2,
+    "manifest_version": 2,
 
-  "name": "MitPhish",
-  "description": "This extension helps you avoid accessing malicious websites by giving you a chance to analyze the website before you interact with it.",
-  "version": "1.0",
-
-  "browser_action": {
-    "default_icon": {
-      "32": "images/icon.png",
-	  "48": "images/icon48.png",
-      "128": "images/icon128.png"
+    "name": "MitPhish",
+    "description": "This extension helps you avoid accessing malicious websites by giving you a chance to analyze the website before you interact with it.",
+    "version": "1.0",
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": true
     },
-    "default_popup": "popup.html"
-  },
-  "icons": {
-    "32": "images/icon.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
-  },
+    "options_page": "options_custom/index.html",
+
+    "browser_action": {
+        "default_icon": {
+            "16": "images/red/icon16.png",
+            "32": "images/red/icon.png",
+            "48": "images/red/icon48.png",
+            "64": "images/red/icon64.png",
+            "128": "images/red/icon128.png"
+        },
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "16": "images/icon/icon16.png",
+        "32": "images/icon/icon.png",
+        "48": "images/icon/icon48.png",
+        "64": "images/icon/icon64.png",
+        "128": "images/icon/icon128.png"
+    },
     "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'",
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "https://ajax.googleapis.com/",
-    "tabs",
-    "<all_urls>"
-  ]
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "https://ajax.googleapis.com/",
+        "tabs",
+        "<all_urls>"
+    ],
+    "content_scripts": [{
+        "matches": [
+            "<all_urls>"
+        ],
+        "js": [
+            "popup.js"
+        ]
+    }]
 }

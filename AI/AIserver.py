@@ -77,6 +77,11 @@ def homepage():
     else:
         return "MitPhish" #+ path Yay, the file exists! 
 
+@mitphish.route('/ltest/<path:path>')
+def ltest(path):
+    testdata = str('{ "url": "google.com", "decision": "bad", "entropy": "2.6464393446710153" }')
+    return testdata
+
 
 @mitphish.route('/test/<path:path>')
 def show_index(path):
