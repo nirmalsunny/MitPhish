@@ -8,7 +8,7 @@
         "scripts": [
             "background.js"
         ],
-        "persistent": true
+        "persistent": false
     },
     "options_page": "options_custom/index.html",
 
@@ -33,16 +33,7 @@
     "permissions": [
         "activeTab",
         "tabs",
-        "https://ajax.googleapis.com/",
-        "tabs",
+        "storage",
         "<all_urls>"
-    ],
-    "content_scripts": [{
-        "matches": [
-            "<all_urls>"
-        ],
-        "js": [
-            "popup.js"
-        ]
-    }]
+    ]
 }
